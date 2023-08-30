@@ -1,6 +1,11 @@
 ---
+import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import Card from '../components/Card.astro';
+
+const allQuestions = await getCollection('questions');
+
+console.log(allQuestions);
 ---
 
 <Layout title="Welcome to Astro.">
