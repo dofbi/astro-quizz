@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import Questions from './Questions';
 const allQuestions = await getCollection('questions');
 ---
-<Questions all={allQuestions} client:idle/>
+<Questions all={allQuestions} client:load/>
 
 <style is:global>
 	.instructions {
@@ -42,7 +42,7 @@ const allQuestions = await getCollection('questions');
 		transition: background-position 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 		box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 	}
-	.link-card > a {
+	.link-card > span, a {
 		width: 100%;
 		text-decoration: none;
 		line-height: 1.4;

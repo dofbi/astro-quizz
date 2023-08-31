@@ -1,51 +1,78 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Questions(props) {
-
-    if (!props || props.all.length === 0) {
-        return (
-            <p className="no-questions">Aucune question disponible pour le moment.</p>
-        );
-    }
-
-    // Choisir une question au hasard
-    const randomQuestionIndex = Math.floor(Math.random() * props.all.length);
-    const randomQuestion = props.all[randomQuestionIndex];
-    const correctAnswerIndex = randomQuestion.data.resultat;
-
-    // État pour suivre la réponse sélectionnée
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(null);
+    const [showNextQuestion, setShowNextQuestion] = useState(false);
+    const [score, setScore] = useState(0);
 
-    // Gérer le clic sur une réponse
+    useEffect(() => {
+        setSelectedAnswerIndex(null);
+        setShowNextQuestion(false);
+    }, [currentQuestionIndex]);
+
+    const currentQuestion = props.all[currentQuestionIndex];
+    const correctAnswerIndex = currentQuestion.data.resultat;
+
     function handleAnswerClick(index) {
         setSelectedAnswerIndex(index);
+        setShowNextQuestion(true);
+        if (index === correctAnswerIndex) {
+            setScore(score + 1);
+        }
+    }
+
+    function handleNextQuestionClick() {
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
     }
 
     return (
         <>
-            <p className="instructions">
-                {randomQuestion.data.question}
-            </p>
-            <ul role="list" className="link-card-grid">
-                {randomQuestion.data.reponses.map((p, index) => (
-                <li 
-                    key={index}
-                    className={`link-card ${selectedAnswerIndex === index ? 'selected' : ''} ${correctAnswerIndex === index ? 'correct' : ''}`}
-                    onClick={() => handleAnswerClick(index)}
-                >
-                    <a href='#'>
-                        <h2>
-                            {`Réponse ${index + 1}`}
-                            <span>&rarr;</span>
-                        </h2>
-                        <p>
-                            {p}
+            {currentQuestionIndex < props.all.length ? (
+                <>
+                    <p className="instructions">
+                        {currentQuestion.data.question}
+                    </p>
+                    <ul role="list" className="link-card-grid">
+                        {currentQuestion.data.reponses.map((p, index) => (
+                            <li 
+                                key={index}
+                                className={`link-card ${selectedAnswerIndex === index ? 'selected' : ''} ${selectedAnswerIndex === index && correctAnswerIndex === index ? 'correct' : ''}`}
+                                onClick={() => handleAnswerClick(index)}
+                            >
+                                <span>
+                                    <h2>
+                                        {`Réponse ${index + 1}`}
+                                    </h2>
+                                    <p>
+                                        {p}
+                                    </p>
+                                </span>
+                            </li>
+                        ))}
+                        {showNextQuestion && (
+                            <li className='link-card'>
+                                <a href="#" onClick={handleNextQuestionClick}>
+                                    <h2>
+                                        Question suivante
+                                        <span>&rarr;</span>
+                                    </h2>
+                                </a>
+                            </li>
+                        )}
+                    </ul>
+                    {selectedAnswerIndex !== null && selectedAnswerIndex === correctAnswerIndex && (
+                        <p className="instructions">
+                            <strong>Bonne réponse </strong><br/>
+                            {currentQuestion.body}
                         </p>
-                    </a>
-                </li>
-                ))}
-            </ul>
+                    )}
+                </>
+            ) : (
+                <p className="instructions">
+                    Bravo, vous avez terminé le quizz ! Votre score est de {score} sur {props.all.length}.
+                </p>
+            )}
         </>
     )
 }
-
