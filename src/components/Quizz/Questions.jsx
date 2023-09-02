@@ -5,25 +5,38 @@ export default function Questions(props) {
     const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(null);
     const [showNextQuestion, setShowNextQuestion] = useState(false);
     const [score, setScore] = useState(0);
+    const [attempts, setAttempts] = useState(0);
 
     useEffect(() => {
         setSelectedAnswerIndex(null);
         setShowNextQuestion(false);
+        setAttempts(0);
     }, [currentQuestionIndex]);
 
     const currentQuestion = props.all[currentQuestionIndex];
     const correctAnswerIndex = currentQuestion.data.resultat;
 
     function handleAnswerClick(index) {
-        setSelectedAnswerIndex(index);
-        setShowNextQuestion(true);
-        if (index === correctAnswerIndex) {
-            setScore(score + 1);
+        if (attempts < 2) {
+            setSelectedAnswerIndex(index);
+
+            if (index === correctAnswerIndex && attempts < 1) {
+                setScore(score + 1);
+            }
+
+            setAttempts(attempts + 1);
+
+            if (attempts === 1 || index === correctAnswerIndex) {
+                setShowNextQuestion(true);
+            }
         }
     }
 
     function handleNextQuestionClick() {
         setCurrentQuestionIndex(currentQuestionIndex + 1);
+        setAttempts(0);
+        setShowNextQuestion(false);
+        console.log('score', score);
     }
 
     return (
@@ -35,7 +48,7 @@ export default function Questions(props) {
                     </p>
                     <ul role="list" className="link-card-grid">
                         {currentQuestion.data.reponses.map((p, index) => (
-                            <li 
+                            <li
                                 key={index}
                                 className={`link-card ${selectedAnswerIndex === index ? 'selected' : ''} ${selectedAnswerIndex === index && correctAnswerIndex === index ? 'correct' : ''}`}
                                 onClick={() => handleAnswerClick(index)}
@@ -61,9 +74,15 @@ export default function Questions(props) {
                             </li>
                         )}
                     </ul>
+                    {attempts === 2 && selectedAnswerIndex !== correctAnswerIndex && (
+                        <p className="instructions">
+                            <strong>Mauvaise réponse</strong><br />
+                            {currentQuestion.body}
+                        </p>
+                    )}
                     {selectedAnswerIndex !== null && selectedAnswerIndex === correctAnswerIndex && (
                         <p className="instructions">
-                            <strong>Bonne réponse </strong><br/>
+                            <strong>Bonne réponse</strong><br />
                             {currentQuestion.body}
                         </p>
                     )}
